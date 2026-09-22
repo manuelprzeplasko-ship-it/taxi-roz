@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Rozliczenie kierowcy – PIKER TAXI</title>
+<style>
+body {
+    font-family: Arial;
+    background: #f2f2f2;
+    padding: 0;
+    margin: 0;
+}
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+input {
+    width: 100%;
+    padding: 8px;
+    margin: 4px 0 12px 0;
+    font-size: 16px;
+}
+label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+.row {
+    display: flex;
+    gap: 20px;
+}
+.col {
+    flex: 1;
+}
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+button {
+    padding: 12px 20px;
+    font-size: 18px;
+    margin-top: 20px;
+}
+.result {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<div class="top">
+    <div>
+        <label>Imię kierowcy:</label>
+        <input id="name" type="text">
+    </div>
+    <div>
+        <label>Data:</label>
+        <input id="date" type="date">
+    </div>
+</div>
+
+<h2>Rozliczenie kierowcy</h2>
+
+<label>BOLT</label>
+<input id="bolt" type="number" placeholder="Kwota z aplikacji">
+<label>POŁOWA BOLT</label>
+<input id="halfBolt" type="number" readonly>
+
+<label>GOTÓWKA</label>
+<input id="cash" type="number">
+
+<label>NAPIWKI</label>
+<input id="tips" type="number">
+
+<label>PALIWO</label>
+<input id="fuel" type="number">
+<label>POŁOWA PALIWA</label>
+<input id="halfFuel" type="number" readonly>
+
+<label>POZA APK</label>
+<input id="outside" type="number">
+<label>POŁOWA POZA APK</label>
+<input id="halfOutside" type="number" readonly>
+
+<label>ZUS / PODATKI</label>
+<input id="tax" type="number" value="65">
+
+<h3>ZAROBEK</h3>
+<div class="result" id="income"></div>
+
+<h3>OBLICZANIE GOTÓWKI</h3>
+<div class="result" id="cashCalc"></div>
+
+<h3>PODSUMOWANIE</h3>
+<div class="result" id="summary"></div>
+<div class="result" id="status"></div>
+
+<button onclick="calculate()">OBLICZ</button>
+<button onclick="window.print()">DRUKUJ</button>
+
+</div>
+
+<script>
+function calculate() {
+    let bolt = Number(document.getElementById("bolt").value);
+    let cash = Number(document.getElementById("cash").value);
+    let tips = Number(document.getElementById("tips").value);
+    let fuel = Number(document.getElementById("fuel").value);
+    let outside = Number(document.getElementById("outside").value);
+    let tax = Number(document.getElementById("tax").value);
+
+    let halfBolt = bolt / 2;
+    let halfFuel = fuel / 2;
+    let halfOutside = outside / 2;
+
+    document.getElementById("halfBolt").value = halfBolt.toFixed(2);
+    document.getElementById("halfFuel").value = halfFuel.toFixed(2);
+    document.getElementById("halfOutside").value = halfOutside.toFixed(2);
+
+    let income = halfBolt + tips + halfOutside - halfFuel - tax;
+    document.getElementById("income").innerHTML = income.toFixed(2) + " zł";
+
+    let cashCalc = cash + outside - fuel;
+    document.getElementById("cashCalc").innerHTML = cashCalc.toFixed(2) + " zł";
+
+    let summary = cashCalc - income;
+    document.getElementById("summary").innerHTML = summary.toFixed(2) + " zł";
+
+    let status = summary < 0 ? "DLA KIEROWCY" : "DLA PIKER";
+    document.getElementById("status").innerHTML = status;
+}
+</script>
+
+</body>
+</html>
