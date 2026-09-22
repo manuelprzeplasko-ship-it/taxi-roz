@@ -29,37 +29,42 @@ label {
     margin-top: 10px;
     display: block;
 }
-.row {
-    display: flex;
-    gap: 20px;
-}
-.col {
-    flex: 1;
-}
 h2 {
     text-align: center;
     margin-bottom: 20px;
 }
-.top {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
 button {
-    padding: 12px 20px;
+    width: 100%;
+    padding: 14px;
+    background: #f1c40f;
+    color: #000;
+    font-weight: bold;
+    border-radius: 6px;
     font-size: 18px;
-    margin-top: 20px;
+    margin-top: 12px;
+    border: none;
 }
 .result {
     font-size: 20px;
     font-weight: bold;
     margin-top: 10px;
 }
+.top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
 </style>
 </head>
 <body>
 
 <div class="page">
+
+<!-- LOGO PIKER TAXI -->
+<div style="text-align:center; margin-bottom:25px;">
+    <img src="piker.jpg" alt="PIKER TAXI" style="width:180px; margin-bottom:10px;">
+    <div style="font-size:26px; font-weight:bold; color:#000;">PIKER TAXI</div>
+</div>
 
 <div class="top">
     <div>
@@ -109,6 +114,7 @@ button {
 <div class="result" id="status"></div>
 
 <button onclick="calculate()">OBLICZ</button>
+<button onclick="clearAll()">WYCZYŚĆ WSZYSTKO</button>
 <button onclick="window.print()">DRUKUJ</button>
 
 </div>
@@ -141,6 +147,30 @@ function calculate() {
 
     let status = summary < 0 ? "DLA KIEROWCY" : "DLA PIKER";
     document.getElementById("status").innerHTML = status;
+}
+
+function clearAll() {
+    const fields = [
+        "bolt", "halfBolt",
+        "cash", "tips",
+        "fuel", "halfFuel",
+        "outside", "halfOutside",
+        "tax",
+        "income", "cashCalc",
+        "summary", "status",
+        "name", "date"
+    ];
+
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            if (el.tagName === "INPUT") {
+                el.value = "";
+            } else {
+                el.innerHTML = "";
+            }
+        }
+    });
 }
 </script>
 
