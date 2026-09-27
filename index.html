@@ -74,6 +74,34 @@ button {
     justify-content: space-between;
     margin-bottom: 20px;
 }
+
+.history {
+    margin-top: 28px;
+    border-top: 2px solid #ddd;
+    padding-top: 18px;
+}
+.history h2 { margin-bottom: 12px; }
+.history-item {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 8px 0;
+    background: #fafafa;
+}
+.history-item strong { display: block; margin-bottom: 4px; }
+.history-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+.history-actions button {
+    width: auto;
+    flex: 1;
+    padding: 8px;
+    margin-top: 0;
+    font-size: 14px;
+}
+
 @media print {
     @page { size: A4 portrait; margin: 7mm; }
     body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -94,7 +122,7 @@ button {
     input { padding: 3px; margin: 1px 0 3px 0; font-size: 12px; box-sizing: border-box; }
     .result { font-size: 14px; margin-top: 2px; }
     .calculation-detail { font-size: 10px; margin-top: 1px; line-height: 1.2; }
-    button { display: none; }
+    button, .history { display: none !important; }
 }
 
 </style>
@@ -111,7 +139,7 @@ button {
 
 <div class="top">
     <div>
-        <label>Imię kierowcy:</label>
+        <label>Imię i nazwisko kierowcy:</label>
         <input id="name" type="text">
     </div>
     <div>
@@ -173,8 +201,14 @@ button {
 <div class="result" id="status"></div>
 
 <button onclick="calculate()">OBLICZ</button>
+<button onclick="saveSettlement()">ZAPISZ</button>
 <button onclick="clearAll()">WYCZYŚĆ WSZYSTKO</button>
 <button onclick="window.print()">DRUKUJ</button>
+
+<div class="history">
+    <h2>HISTORIA ROZLICZEŃ</h2>
+    <div id="historyList"></div>
+</div>
 
 </div>
 
@@ -241,6 +275,110 @@ function clearAll() {
         }
     });
 }
+
+const STORAGE_KEY = "pikerTaxiSettlements";
+
+function getSettlements() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    } catch (e) {
+        return [];
+    }
+}
+
+function readSettlementFromForm() {
+    calculate();
+    return {
+        id: Date.now(),
+        name: document.getElementById("name").value.trim(),
+        dateFrom: document.getElementById("dateFrom").value,
+        dateTo: document.getElementById("dateTo").value,
+        bolt: document.getElementById("bolt").value,
+        cash: document.getElementById("cash").value,
+        card: document.getElementById("card").value,
+        tips: document.getElementById("tips").value,
+        fuel: document.getElementById("fuel").value,
+        outside: document.getElementById("outside").value,
+        tax: document.getElementById("tax").value,
+        savedAt: new Date().toISOString()
+    };
+}
+
+function saveSettlement() {
+    const item = readSettlementFromForm();
+    if (!item.name) {
+        alert("Wpisz imię i nazwisko kierowcy.");
+        return;
+    }
+    if (!item.dateFrom || !item.dateTo) {
+        alert("Podaj zakres dat: Od i Do.");
+        return;
+    }
+    const items = getSettlements();
+    items.unshift(item);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    renderHistory();
+    alert("Rozliczenie zostało zapisane.");
+}
+
+function fillSettlement(item) {
+    ["name","dateFrom","dateTo","bolt","cash","card","tips","fuel","outside","tax"].forEach(id => {
+        document.getElementById(id).value = item[id] ?? "";
+    });
+    calculate();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openSettlement(id) {
+    const item = getSettlements().find(x => x.id === id);
+    if (item) fillSettlement(item);
+}
+
+function printSettlement(id) {
+    const item = getSettlements().find(x => x.id === id);
+    if (!item) return;
+    fillSettlement(item);
+    setTimeout(() => window.print(), 100);
+}
+
+function deleteSettlement(id) {
+    if (!confirm("Usunąć to rozliczenie z historii?")) return;
+    const items = getSettlements().filter(x => x.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    renderHistory();
+}
+
+function escapeHtml(text) {
+    return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function renderHistory() {
+    const list = document.getElementById("historyList");
+    const items = getSettlements();
+    if (!items.length) {
+        list.innerHTML = "<div>Brak zapisanych rozliczeń.</div>";
+        return;
+    }
+    list.innerHTML = items.map(item => `
+        <div class="history-item">
+            <strong>${escapeHtml(item.name || "Bez nazwy")}</strong>
+            <div>${escapeHtml(item.dateFrom || "—")} – ${escapeHtml(item.dateTo || "—")}</div>
+            <div class="history-actions">
+                <button onclick="openSettlement(${item.id})">OTWÓRZ</button>
+                <button onclick="printSettlement(${item.id})">PDF / DRUKUJ</button>
+                <button onclick="deleteSettlement(${item.id})">USUŃ</button>
+            </div>
+        </div>
+    `).join("");
+}
+
+document.addEventListener("DOMContentLoaded", renderHistory);
+
 </script>
 
 </body>
