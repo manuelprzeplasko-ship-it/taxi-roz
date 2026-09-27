@@ -26,13 +26,10 @@ input {
     box-sizing: border-box;
 }
 input[readonly], input.auto-field {
-    background-color: #f1c40f !important;
-    background-image: none !important;
-    color: #000 !important;
-    font-weight: bold;
+    background-color: #fff;
+    color: #000;
+    font-weight: normal;
     opacity: 1;
-    -webkit-appearance: none;
-    appearance: none;
 }
 .date-range {
     display: flex;
@@ -66,6 +63,12 @@ button {
     font-weight: bold;
     margin-top: 10px;
 }
+.calculation-detail {
+    font-size: 14px;
+    font-weight: normal;
+    margin-top: 4px;
+    line-height: 1.35;
+}
 .top {
     display: flex;
     justify-content: space-between;
@@ -74,7 +77,6 @@ button {
 @media print {
     @page { size: A4 portrait; margin: 7mm; }
     body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    input[readonly], input.auto-field { background-color: #f1c40f !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     .page {
         width: auto;
         min-height: auto;
@@ -91,6 +93,7 @@ button {
     label { margin-top: 3px; font-size: 11px; }
     input { padding: 3px; margin: 1px 0 3px 0; font-size: 12px; box-sizing: border-box; }
     .result { font-size: 14px; margin-top: 2px; }
+    .calculation-detail { font-size: 10px; margin-top: 1px; line-height: 1.2; }
     button { display: none; }
 }
 
@@ -128,7 +131,7 @@ button {
 
 <h2>Rozliczenie kierowcy</h2>
 
-<label>BOLT</label>
+<label>CAŁOŚĆ BOLT</label>
 <input id="bolt" type="number" placeholder="Kwota z aplikacji">
 <label>POŁOWA BOLT</label>
 <input id="halfBolt" class="auto-field" type="number" readonly>
@@ -157,11 +160,13 @@ button {
 <label>ZUS / PODATKI</label>
 <input id="tax" type="number" value="65">
 
-<h3>ZAROBEK</h3>
+<h3>ZAROBEK KIEROWCY</h3>
 <div class="result" id="income"></div>
+<div class="calculation-detail" id="incomeDetail"></div>
 
 <h3>OBLICZANIE GOTÓWKI</h3>
 <div class="result" id="cashCalc"></div>
+<div class="calculation-detail" id="cashCalcDetail"></div>
 
 <h3>PODSUMOWANIE</h3>
 <div class="result" id="summary"></div>
@@ -193,11 +198,18 @@ function calculate() {
     document.getElementById("halfFuel").value = halfFuel.toFixed(2);
     document.getElementById("halfOutside").value = halfOutside.toFixed(2);
 
-    let income = halfBolt + halfCard + tips + halfOutside - halfFuel - tax;
+    let income = halfBolt + tips + halfCard + halfOutside - halfFuel - tax;
     document.getElementById("income").innerHTML = income.toFixed(2) + " zł";
+    document.getElementById("incomeDetail").textContent =
+        halfBolt.toFixed(2) + " + " + tips.toFixed(2) + " + " + halfCard.toFixed(2) + " + " +
+        halfOutside.toFixed(2) + " - " + halfFuel.toFixed(2) + " - " + tax.toFixed(2) +
+        " = " + income.toFixed(2) + " zł";
 
     let cashCalc = cash + outside - fuel;
     document.getElementById("cashCalc").innerHTML = cashCalc.toFixed(2) + " zł";
+    document.getElementById("cashCalcDetail").textContent =
+        cash.toFixed(2) + " + " + outside.toFixed(2) + " - " + fuel.toFixed(2) +
+        " = " + cashCalc.toFixed(2) + " zł";
 
     let summary = cashCalc - income;
     document.getElementById("summary").innerHTML = summary.toFixed(2) + " zł";
@@ -213,7 +225,7 @@ function clearAll() {
         "fuel", "halfFuel",
         "outside", "halfOutside",
         "tax",
-        "income", "cashCalc",
+        "income", "incomeDetail", "cashCalc", "cashCalcDetail",
         "summary", "status",
         "name", "dateFrom", "dateTo"
     ];
