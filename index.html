@@ -54,6 +54,28 @@ button {
     justify-content: space-between;
     margin-bottom: 20px;
 }
+@media print {
+    @page { size: A4 portrait; margin: 7mm; }
+    body { background: white; }
+    .page {
+        width: auto;
+        min-height: auto;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
+    }
+    .page > div:first-child { margin-bottom: 8px !important; }
+    .page > div:first-child img { width: 120px !important; margin-bottom: 3px !important; }
+    .page > div:first-child div { font-size: 18px !important; }
+    .top { margin-bottom: 6px; }
+    h2 { margin: 5px 0 7px; font-size: 18px; }
+    h3 { margin: 7px 0 2px; font-size: 15px; }
+    label { margin-top: 3px; font-size: 11px; }
+    input { padding: 3px; margin: 1px 0 3px 0; font-size: 12px; box-sizing: border-box; }
+    .result { font-size: 14px; margin-top: 2px; }
+    button { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -86,6 +108,11 @@ button {
 
 <label>GOTÓWKA</label>
 <input id="cash" type="number">
+
+<label>KARTA</label>
+<input id="card" type="number">
+<label>POŁOWA Z KARTY</label>
+<input id="halfCard" type="number" readonly>
 
 <label>NAPIWKI</label>
 <input id="tips" type="number">
@@ -123,20 +150,23 @@ button {
 function calculate() {
     let bolt = Number(document.getElementById("bolt").value);
     let cash = Number(document.getElementById("cash").value);
+    let card = Number(document.getElementById("card").value);
     let tips = Number(document.getElementById("tips").value);
     let fuel = Number(document.getElementById("fuel").value);
     let outside = Number(document.getElementById("outside").value);
     let tax = Number(document.getElementById("tax").value);
 
     let halfBolt = bolt / 2;
+    let halfCard = card / 2;
     let halfFuel = fuel / 2;
     let halfOutside = outside / 2;
 
     document.getElementById("halfBolt").value = halfBolt.toFixed(2);
+    document.getElementById("halfCard").value = halfCard.toFixed(2);
     document.getElementById("halfFuel").value = halfFuel.toFixed(2);
     document.getElementById("halfOutside").value = halfOutside.toFixed(2);
 
-    let income = halfBolt + tips + halfOutside - halfFuel - tax;
+    let income = halfBolt + halfCard + tips + halfOutside - halfFuel - tax;
     document.getElementById("income").innerHTML = income.toFixed(2) + " zł";
 
     let cashCalc = cash + outside - fuel;
@@ -152,7 +182,7 @@ function calculate() {
 function clearAll() {
     const fields = [
         "bolt", "halfBolt",
-        "cash", "tips",
+        "cash", "card", "halfCard", "tips",
         "fuel", "halfFuel",
         "outside", "halfOutside",
         "tax",
