@@ -23,6 +23,23 @@ input {
     padding: 8px;
     margin: 4px 0 12px 0;
     font-size: 16px;
+    box-sizing: border-box;
+}
+input[readonly], input.auto-field {
+    background-color: #f1c40f !important;
+    background-image: none !important;
+    color: #000 !important;
+    font-weight: bold;
+    opacity: 1;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.date-range {
+    display: flex;
+    gap: 12px;
+}
+.date-range > div {
+    flex: 1;
 }
 label {
     font-weight: bold;
@@ -56,7 +73,8 @@ button {
 }
 @media print {
     @page { size: A4 portrait; margin: 7mm; }
-    body { background: white; }
+    body { background: white; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    input[readonly], input.auto-field { background-color: #f1c40f !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     .page {
         width: auto;
         min-height: auto;
@@ -94,8 +112,17 @@ button {
         <input id="name" type="text">
     </div>
     <div>
-        <label>Data:</label>
-        <input id="date" type="date">
+        <label>DATY:</label>
+        <div class="date-range">
+            <div>
+                <label>Od:</label>
+                <input id="dateFrom" type="date">
+            </div>
+            <div>
+                <label>Do:</label>
+                <input id="dateTo" type="date">
+            </div>
+        </div>
     </div>
 </div>
 
@@ -104,7 +131,7 @@ button {
 <label>BOLT</label>
 <input id="bolt" type="number" placeholder="Kwota z aplikacji">
 <label>POŁOWA BOLT</label>
-<input id="halfBolt" type="number" readonly>
+<input id="halfBolt" class="auto-field" type="number" readonly>
 
 <label>GOTÓWKA</label>
 <input id="cash" type="number">
@@ -112,7 +139,7 @@ button {
 <label>KARTA</label>
 <input id="card" type="number">
 <label>POŁOWA Z KARTY</label>
-<input id="halfCard" type="number" readonly>
+<input id="halfCard" class="auto-field" type="number" readonly>
 
 <label>NAPIWKI</label>
 <input id="tips" type="number">
@@ -120,12 +147,12 @@ button {
 <label>PALIWO</label>
 <input id="fuel" type="number">
 <label>POŁOWA PALIWA</label>
-<input id="halfFuel" type="number" readonly>
+<input id="halfFuel" class="auto-field" type="number" readonly>
 
 <label>POZA APK</label>
 <input id="outside" type="number">
 <label>POŁOWA POZA APK</label>
-<input id="halfOutside" type="number" readonly>
+<input id="halfOutside" class="auto-field" type="number" readonly>
 
 <label>ZUS / PODATKI</label>
 <input id="tax" type="number" value="65">
@@ -188,7 +215,7 @@ function clearAll() {
         "tax",
         "income", "cashCalc",
         "summary", "status",
-        "name", "date"
+        "name", "dateFrom", "dateTo"
     ];
 
     fields.forEach(id => {
